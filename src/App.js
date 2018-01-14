@@ -9,6 +9,7 @@ import ConfigStorageService from './services/storage/ConfigStorageService';
 import MessageService from './services/MessageService';
 import ConfirmDialog from "./modals/ConfirmDialog";
 import EncounterOptionsModal from "./modals/EncounterOptionsModal";
+import FetchService from './services/FetchService';
 import Link from './monsterbuttons/Link';
 import ListOptionsModal from "./modals/ListOptionsModal";
 import MonsterData from './data/MonsterData';
@@ -123,6 +124,10 @@ class App extends Component {
             BadgeService.updateBadgeCount();
             this.load();
         };
+    }
+
+    handleTestButton = () => {
+        FetchService.postMessageToDiscord('Test button clicked!!!');
     }
 
     //#region children event handlers
@@ -371,6 +376,7 @@ class App extends Component {
                 {this.renderMainContent()}
 
                 {this.renderModalsAndDialogs()}
+                <button onClick={this.handleTestButton}>test button</button>
             </div >
         );
     }
