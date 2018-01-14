@@ -229,8 +229,8 @@ class CharacterSheetService {
             if (value) {
                 attack.value = this.reactText(value.innerHTML);
                 value.parentNode.appendChild(this.createButton(attack.name, attack.name, 'Roll', (e) => {
-                    if (attack.value.indexOf('d') === -1) {
-                        FetchService.postMessageToDiscord(this.getCharacterName() + " inflicted " + this.roll('1d20' + (attack.value >= 0 ? '+' : '') + attack.value) + ' ' + attack.name + " damage");
+                    if (attack.value.indexOf('d') !== -1) {
+                        FetchService.postMessageToDiscord(this.getCharacterName() + " inflicted " + this.roll((attack.value >= 0 ? '+' : '') + attack.value) + ' ' + attack.name + " damage");
                     } else {
                         FetchService.postMessageToDiscord(this.getCharacterName() + " inflicted " + attack.value + ' ' + attack.name + " damage");
                     }
