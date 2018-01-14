@@ -33,6 +33,13 @@ class CharacterSheetService {
                         });
                     });
                 } else {
+                    let contentHidden = document.querySelectorAll("div[class^='truncated-content truncated-content-hidden']");
+                    contentHidden.forEach(function (ele) {
+                        let triggers = ele.querySelectorAll("span[class='truncated-content-trigger-label']");
+                        triggers.forEach(trigger => {
+                            trigger.click();
+                        });
+                    });
                     clearInterval(collapseCheck);
                     console.log('everything is expanded');
                     resolve();
@@ -94,9 +101,13 @@ class CharacterSheetService {
     }
 
     static reactText(value) {
-        let valStart = value.indexOf('-->') + 3;
-        let valEnd = value.indexOf('<!-- /react-text -->');
-        return value.substring(valStart, valEnd);
+        let text = value;
+        if (value && value.indexOf('-->') !== -1) {
+            let valStart = value.indexOf('-->') + 3;
+            let valEnd = value.indexOf('<!-- /react-text -->');
+            text = text.substring(valStart, valEnd);
+        }
+        return text;
     }
 
     static getAbilities() {
@@ -189,15 +200,34 @@ class CharacterSheetService {
             let rowSpells = row.querySelectorAll("div[class^='spell-list-item '");
             rowSpells.forEach(rowSpell => {
                 let spell = {};
-                console.log(rowSpell);
-                // spell.name = rowSpell.querySelector("span[class='spell-list-heading-text']").innerHTML;
-                // let type = rowSpell.querySelector("span[class='collapsible-header-callout-extra']").innerHTML;
-                // if (type === 'To Hit') {
-                //     spell.tohit = rowSpell.querySelector("span[class='collapsible-header-callout-value']").innerHTML;
-                // } else {
-                //     spell.dc = rowSpell.querySelector("span[class='collapsible-header-callout-value']").innerHTML;
-                // }
-                // spells.push(spell);
+                if (rowSpell.querySelector("span[class='spell-list-heading-text']")) {
+                    spell.name = rowSpell.querySelector("span[class='spell-list-heading-text']").innerHTML;
+                    if (rowSpell.querySelector("span[class='collapsible-header-callout-extra']")) {
+                        let type = rowSpell.querySelector("span[class='collapsible-header-callout-extra']").innerHTML;
+                        if (type === 'To Hit') {
+                            spell.tohit = rowSpell.querySelector("span[class='collapsible-header-callout-value']").innerHTML;
+                        } else {
+                            spell.dc = rowSpell.querySelector("span[class='collapsible-header-callout-value']").innerHTML;
+                            spell.dcType = type;
+                        }
+                        let desc = (rowSpell.querySelector("div[class='truncated-content-content']") || {}).innerHTML;
+                        if (desc) {
+                            spell.desc = desc;
+                        }
+                        spell.props = [];
+                        let props = rowSpell.querySelectorAll("div[class^='prop-list-item']");
+                        props.forEach(propRow => {
+                            let prop = {
+                                label: (propRow.querySelector("div[class='prop-list-item-label']") || {}).innerHTML,
+                                value: this.reactText((propRow.querySelector("div[class='prop-list-item-value']") || {}).innerHTML)
+                            };
+                            if (prop.label && prop.value) {
+                                spell.props.push(prop);
+                            }
+                        });
+                    }
+                    spells.push(spell);
+                }
             });
         });
 
@@ -206,6 +236,8 @@ class CharacterSheetService {
 }
 
 export default CharacterSheetService;
+
+// <button class="character-button-small character-button-outline">Roll</button>
 
 /*
 {
