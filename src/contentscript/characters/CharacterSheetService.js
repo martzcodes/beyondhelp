@@ -1,5 +1,8 @@
 import $ from "jquery";
+import React from 'react';
+import ReactDOM from 'react-dom';
 import MessageService from "../../services/MessageService";
+import CharacterSheetButton from "./CharacterSheetButton";
 
 /* global chrome */
 
@@ -19,6 +22,16 @@ class CharacterSheetService {
                 this.actualInit();
             }
         }, 1000);
+    }
+
+    static createButton(id: string, name: string, roll: Function) {
+        const buttonSpan = document.createElement("span");
+        ReactDOM.render(<CharacterSheetButton onClick={roll} />, buttonSpan);
+        return buttonSpan;
+    }
+
+    static roll(name) {
+        console.log(name, Math.random());
     }
 
     static expandAll() {
@@ -86,8 +99,16 @@ class CharacterSheetService {
     }
 
     static getArmorClass() {
-        return Number(document.querySelector("div[class='quick-info-item quick-info-armor-class']")
-            .querySelector("div[class='quick-info-item-value']").innerHTML) || 10;
+        let ac = document.querySelector("div[class='quick-info-item quick-info-armor-class']")
+            .querySelector("div[class='quick-info-item-value']");
+        console.log(ac.parentNode);
+        console.dir(ac.parentNode);
+        console.log(ac.parentElement);
+        console.dir(ac.parentElement);
+        ac.parentNode.appendChild(this.createButton('armor-class', 'armor-class', () => {
+            this.roll('ac');
+        }));
+        return Number(ac.innerHTML) || 10;
     }
 
     static getInitiative() {
