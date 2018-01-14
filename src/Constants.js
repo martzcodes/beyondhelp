@@ -8,6 +8,7 @@ const presetListHeaderColor = [defaultListHeaderColor];
 const configurationId = "bh-config";
 
 const addMonsterMessage = "addmonstermessage";
+const playerRollMessage = "playerrollmessage";
 const closeTinyMessage = "closetinymessage";
 const addContentToTinyMessage = "addcontenttotinymessage";
 const reloadMessage = "reloadmessage";
@@ -67,6 +68,9 @@ class Constants {
     }
     static get BuildTooltipMessage() {
         return buildTooltipMessage;
+    }
+    static get PlayerRollMessage() {
+        return playerRollMessage;
     }
 }
 

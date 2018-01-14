@@ -1,12 +1,25 @@
 import C from "../Constants";
 import MessageService from "./MessageService";
 import MonsterData from "../data/MonsterData";
+import PlayerData from "../data/PlayerData";
 
 /* global chrome */
 
 class NotificationService {
     static notifyNewMonster(name: string, monster: MonsterData) {
         MessageService.send(C.AddMonsterMessage, {
+            notificationid: monster.storageId,
+            notification: {
+                type: "basic",
+                iconUrl: "icon-grey-128.png",
+                title: "Beyond Help",
+                message: `${name} #${monster.number} added with ${monster.hp}HP`
+            }
+        });
+    }
+
+    static notifyPlayerRoll(name: string, player: PlayerData) {
+        MessageService.send(C.PlayerRollMessage, {
             notificationid: monster.storageId,
             notification: {
                 type: "basic",

@@ -4,6 +4,7 @@ import $ from "jquery";
 import AddMonsterButton from './addmonsters/AddMonsterButton';
 import C from "../Constants";
 import CampaignCharactersService from "./characters/CampaignCharactersService";
+import CharacterSheetService from "./characters/CharacterSheetService";
 import ConfigStorageService from "../services/storage/ConfigStorageService";
 import Configuration from "../data/Configuration";
 import ContentScriptService from "./ContentScriptService";
@@ -69,6 +70,9 @@ ConfigStorageService.getConfig().then((config: Configuration) => {
 
     init(config);
 
+    // force character sheet
+    CharacterSheetService.init();
+
     // change fav icon of char page
     if (config[Opt.CharacterFavIcon]) FavIconService.changeCharacterFavIcon();
 
@@ -81,7 +85,7 @@ ConfigStorageService.getConfig().then((config: Configuration) => {
     // adds the Beyond Help plugin to tiny editors on page
     if (config[Opt.EditorButton]) TinyMCEService.init();
 
-    // handles errors loading tooltips 
+    // handles errors loading tooltips
     if (config[Opt.HomebrewTooltips]) TooltipsService.listenTooltipError();
 
     // inits the refs on compendium pages
