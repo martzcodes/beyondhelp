@@ -63,7 +63,7 @@ const calcDiceExpValue = function (diceExp: string) {
     if (add) value += calcTermValue(token);
     else value -= calcTermValue(token);
 
-    return value;
+    return `${value} (${diceExp})`;
 };
 
 class DiceExp {
