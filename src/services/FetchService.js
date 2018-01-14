@@ -10,7 +10,7 @@ class FetchService {
       method: 'POST',
       body: payload
     };
-    fetch(discordUrl, params).error(e=>consle.error(e));
+    fetch(discordUrl, params).error(e=>console.error(e));
   }
 }
 
