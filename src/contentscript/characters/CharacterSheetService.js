@@ -26,9 +26,9 @@ class CharacterSheetService {
         }, 1000);
     }
 
-    static createButton(id: string, name: string, roll: Function) {
+    static createButton(id: string, name: string, value: string, roll: Function) {
         const buttonSpan = document.createElement("span");
-        ReactDOM.render(<CharacterSheetButton onClick={roll} />, buttonSpan);
+        ReactDOM.render(<CharacterSheetButton onClick={roll} value={value} />, buttonSpan);
         return buttonSpan;
     }
 
@@ -96,6 +96,7 @@ class CharacterSheetService {
             character.proficiencies = this.getProficiencies();
             character.attacks = this.getAttacks();
             character.spells = this.getSpells();
+            character.feats = this.getFeats();
             console.log(character);
         });
     }
@@ -108,7 +109,7 @@ class CharacterSheetService {
         let acSel = document.querySelector("div[class='quick-info-item quick-info-armor-class']")
             .querySelector("div[class='quick-info-item-value']");
         let ac = Number(acSel.innerHTML) || 10;
-        acSel.parentNode.appendChild(this.createButton('armor-class', 'armor-class', (e) => {
+        acSel.parentNode.appendChild(this.createButton('armor-class', 'armor-class', 'Roll', (e) => {
             // send ac
             FetchService.postMessageToDiscord(this.getCharacterName() + "'s AC is " + ac);
         }));
@@ -122,7 +123,7 @@ class CharacterSheetService {
         if (parent.querySelector("span[class='quick-info-item-value-extra']").innerHTML === '-') {
             initiative = -initiative;
         }
-        parent.parentNode.appendChild(this.createButton('initiative', 'initiative', (e) => {
+        parent.parentNode.appendChild(this.createButton('initiative', 'initiative', 'Roll', (e) => {
             // send ac
             FetchService.postMessageToDiscord(this.getCharacterName() + " rolled an initative of " + this.roll('1d20' + (initiative >= 0 ? '+' : '') + initiative));
         }));
@@ -154,6 +155,12 @@ class CharacterSheetService {
             if (row.querySelector("td[class='character-ability-item character-ability-save']").querySelector("span[class='character-ability-stat-extra']").innerHTML === '-') {
                 ability.save = -ability.save;
             }
+            row.querySelector("td[class='character-ability-item character-ability-modifier']").appendChild(this.createButton(ability.name, ability.name, 'Roll', (e) => {
+                FetchService.postMessageToDiscord(this.getCharacterName() + " rolled a " + ability.name + " of " + this.roll('1d20' + (ability.modifier >= 0 ? '+' : '') + ability.modifier));
+            }));
+            row.querySelector("td[class='character-ability-item character-ability-save']").appendChild(this.createButton(ability.name, ability.name, 'Roll', (e) => {
+                FetchService.postMessageToDiscord(this.getCharacterName() + " rolled a " + ability.name + " save of " + this.roll('1d20' + (ability.save >= 0 ? '+' : '') + ability.save));
+            }));
 
             abilities.push(ability);
         });
@@ -170,6 +177,9 @@ class CharacterSheetService {
             if (row.querySelector("span[class='skill-item-modifier']").querySelector("span[class='skill-item-modifier-extra']").innerHTML === '-') {
                 skill.value = -skill.value;
             }
+            row.appendChild(this.createButton(skill.name, skill.name, 'Roll', (e) => {
+                FetchService.postMessageToDiscord(this.getCharacterName() + " rolled a " + skill.name + " of " + this.roll('1d20' + (skill.value >= 0 ? '+' : '') + skill.value));
+            }));
 
             skills.push(skill);
         });
@@ -187,7 +197,11 @@ class CharacterSheetService {
         let rows = document.querySelectorAll("ul[class='feature-proficiencies']");
         rows.forEach(row => {
             row.querySelectorAll("li[class='feature-proficiencies-item']").forEach(prof => {
-                proficiencies.push(prof.innerHTML);
+                let proficiency = prof.innerHTML;
+                proficiencies.push(proficiency);
+                prof.appendChild(this.createButton(proficiency, proficiency, 'Roll', (e) => {
+                    FetchService.postMessageToDiscord(this.getCharacterName() + " rolled a " + proficiency + " of " + this.roll('1d20' + (this.getProficiency() >= 0 ? '+' : '') + this.getProficiency()));
+                }));
             });
         });
         return proficiencies;
@@ -199,11 +213,30 @@ class CharacterSheetService {
         rows.forEach(row => {
             let attack = {};
             attack.name = row.querySelector("span[class='attack-list-heading-text']").innerHTML;
-            attack.tohit = Number(row.querySelector("div[class='attack-item-callout-tohit-value attack-item-callout-value']").innerHTML);
+            if (attack.name.indexOf('span') !== -1) {
+                let start = attack.name.indexOf('>') + 1;
+                let end = attack.name.indexOf('</');
+                attack.name = attack.name.substring(start, end);
+            }
+            let tohit = row.querySelector("div[class='attack-item-callout-tohit-value attack-item-callout-value']");
+            if (tohit) {
+                attack.tohit = Number(tohit.innerHTML) || 0;
+                tohit.parentNode.appendChild(this.createButton(attack.name, attack.name, 'Roll', (e) => {
+                    FetchService.postMessageToDiscord(this.getCharacterName() + " attempts to use " + attack.name + " with a roll of " + this.roll('1d20' + (attack.tohit >= 0 ? '+' : '') + attack.tohit));
+                }));
+            }
             let value = row.querySelector("div[class='attack-item-callout-dmg-value attack-item-callout-value']");
             if (value) {
-                attack.value = value.innerHTML;
+                attack.value = this.reactText(value.innerHTML);
+                value.parentNode.appendChild(this.createButton(attack.name, attack.name, 'Roll', (e) => {
+                    if (attack.value.indexOf('d') === -1) {
+                        FetchService.postMessageToDiscord(this.getCharacterName() + " inflicted " + this.roll('1d20' + (attack.value >= 0 ? '+' : '') + attack.value) + ' ' + attack.name + " damage");
+                    } else {
+                        FetchService.postMessageToDiscord(this.getCharacterName() + " inflicted " + attack.value + ' ' + attack.name + " damage");
+                    }
+                }));
             }
+
             attacks.push(attack);
         });
         return attacks;
@@ -214,8 +247,11 @@ class CharacterSheetService {
         let rows = document.querySelectorAll("div[class='feature-group']");
         rows.forEach(row => {
             let feat = {};
-            feat.name = document.querySelector("div[class='feature-group-heading']").innerHTML;
-            feat.body = document.querySelector("div[class='feat-desc']").innerHTML;
+            feat.name = row.querySelector("div[class='feature-group-heading']").innerHTML;
+            feat.body = row.querySelector("div[class='feat-desc']").innerHTML;
+            row.querySelector("div[class='feature-group-heading']").appendChild(this.createButton(feat.name, feat.name, 'Send', (e) => {
+                FetchService.postMessageToDiscord(this.getCharacterName() + " has a feat of " + feat.name + ": " + feat.body);
+            }));
             feats.push(feat);
         });
 
@@ -231,17 +267,24 @@ class CharacterSheetService {
                 let spell = {};
                 if (rowSpell.querySelector("span[class='spell-list-heading-text']")) {
                     spell.name = rowSpell.querySelector("span[class='spell-list-heading-text']").innerHTML;
+                    let desc = (rowSpell.querySelector("div[class='truncated-content-content']") || {}).innerHTML;
+                    if (desc) {
+                        spell.desc = desc;
+                    }
                     if (rowSpell.querySelector("span[class='collapsible-header-callout-extra']")) {
                         let type = rowSpell.querySelector("span[class='collapsible-header-callout-extra']").innerHTML;
+                        let value = rowSpell.querySelector("span[class='collapsible-header-callout-value']");
                         if (type === 'To Hit') {
-                            spell.tohit = rowSpell.querySelector("span[class='collapsible-header-callout-value']").innerHTML;
+                            spell.tohit = value.innerHTML;
+                            value.parentNode.appendChild(this.createButton(spell.name, spell.name, 'Roll', (e) => {
+                                FetchService.postMessageToDiscord(this.getCharacterName() + " attempts to use " + spell.name + " with a roll of " + this.roll('1d20' + spell.tohit) + (spell.desc ? (': ' + spell.desc) : ''));
+                            }));
                         } else {
-                            spell.dc = rowSpell.querySelector("span[class='collapsible-header-callout-value']").innerHTML;
+                            spell.dc = value.innerHTML;
                             spell.dcType = type;
-                        }
-                        let desc = (rowSpell.querySelector("div[class='truncated-content-content']") || {}).innerHTML;
-                        if (desc) {
-                            spell.desc = desc;
+                            value.parentNode.appendChild(this.createButton(spell.name, spell.name, 'Send', (e) => {
+                                FetchService.postMessageToDiscord(this.getCharacterName() + " uses " + spell.name + " with a " + type + " DC of " + spell.dc + (spell.desc ? (': ' + spell.desc) : ''));
+                            }));
                         }
                         spell.props = [];
                         let props = rowSpell.querySelectorAll("div[class^='prop-list-item']");
@@ -254,6 +297,10 @@ class CharacterSheetService {
                                 spell.props.push(prop);
                             }
                         });
+                    } else {
+                        rowSpell.querySelector("span[class='spell-list-heading-text']").appendChild(this.createButton(spell.name, spell.name, 'Send', (e) => {
+                            FetchService.postMessageToDiscord(this.getCharacterName() + " uses " + spell.name + (spell.desc ? (': ' + spell.desc) : ''));
+                        }));
                     }
                     spells.push(spell);
                 }
