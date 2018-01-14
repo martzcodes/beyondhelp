@@ -3,6 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MessageService from "../../services/MessageService";
 import CharacterSheetButton from "./CharacterSheetButton";
+import DiceExp from "../../services/DiceExp";
+import FetchService from '../../services/FetchService';
 
 /* global chrome */
 
@@ -30,8 +32,8 @@ class CharacterSheetService {
         return buttonSpan;
     }
 
-    static roll(name) {
-        console.log(name, Math.random());
+    static roll(dice) {
+        return DiceExp.calcValue(dice);
     }
 
     static expandAll() {
@@ -98,17 +100,19 @@ class CharacterSheetService {
         });
     }
 
+    static getCharacterName() {
+        return document.querySelector("div[class='character-tidbits-name']").innerHTML;
+    }
+
     static getArmorClass() {
-        let ac = document.querySelector("div[class='quick-info-item quick-info-armor-class']")
+        let acSel = document.querySelector("div[class='quick-info-item quick-info-armor-class']")
             .querySelector("div[class='quick-info-item-value']");
-        console.log(ac.parentNode);
-        console.dir(ac.parentNode);
-        console.log(ac.parentElement);
-        console.dir(ac.parentElement);
-        ac.parentNode.appendChild(this.createButton('armor-class', 'armor-class', () => {
-            this.roll('ac');
+        let ac = Number(acSel.innerHTML) || 10;
+        acSel.parentNode.appendChild(this.createButton('armor-class', 'armor-class', (e) => {
+            // send ac
+            FetchService.postMessageToDiscord(this.getCharacterName() + "'s AC is " + ac);
         }));
-        return Number(ac.innerHTML) || 10;
+        return ac;
     }
 
     static getInitiative() {
@@ -118,6 +122,10 @@ class CharacterSheetService {
         if (parent.querySelector("span[class='quick-info-item-value-extra']").innerHTML === '-') {
             initiative = -initiative;
         }
+        parent.parentNode.appendChild(this.createButton('initiative', 'initiative', (e) => {
+            // send ac
+            FetchService.postMessageToDiscord(this.getCharacterName() + " rolled an initative of " + this.roll('1d20' + (initiative >= 0 ? '+' : '') + initiative));
+        }));
         return initiative;
     }
 

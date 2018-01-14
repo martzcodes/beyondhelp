@@ -8,7 +8,7 @@ class CharacterSheetButton extends Component {
         const hidden = this.props.hidden ? " hidden" : "";
         const className = `${fromParent} character-button-small character-button-outline Character-sheet-button ${hidden}`;
         return (
-            <button role="button" className={className} onMouseDown={this.props.onClick} title={this.props.title}>Roll</button>
+            <button id="test" role="button" className={className} onMouseDown={this.props.onClick.bind(this)} title={this.props.title}>Roll</button>
         );
     }
 }

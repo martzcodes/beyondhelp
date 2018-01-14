@@ -12,8 +12,8 @@ const rollDice = function (diceValue) {
 
 /**
  * Roll a number of dice (caps at 99999) and add the results.
- * @param {*} numberOfDice 
- * @param {*} diceValue 
+ * @param {*} numberOfDice
+ * @param {*} diceValue
  */
 const rollAllDice = function (numberOfDice, diceValue) {
     var total = 0;
@@ -45,6 +45,7 @@ const calcTermValue = function (term: string) {
  * Calcs a dice expression value.
  */
 const calcDiceExpValue = function (diceExp: string) {
+    console.log(diceExp);
     var spaceLessExp = diceExp.replace(/\s/g, "").toLowerCase();
     var value = 0;
     var token = "";
