@@ -126,10 +126,6 @@ class App extends Component {
         };
     }
 
-    handleTestButton = () => {
-        FetchService.postMessageToDiscord('Test button clicked!!!');
-    }
-
     //#region children event handlers
     /**
      * onSave of new encounter modal
@@ -376,7 +372,6 @@ class App extends Component {
                 {this.renderMainContent()}
 
                 {this.renderModalsAndDialogs()}
-                <button onClick={this.handleTestButton}>test button</button>
             </div >
         );
     }

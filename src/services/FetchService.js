@@ -1,17 +1,27 @@
+import Configuration from "../data/Configuration";
+import Opt from '../Options';
+
+let discordUrl = null;
+let discordEnabled = null;
+
 class FetchService {
+    static init(config: Configuration) {
+        discordEnabled = config[Opt.DiscordEnabled];
+        discordUrl = config[Opt.DiscordUrl];
+    }
     static postMessageToDiscord(message: string) {
-        const discordUrl =
-            'https://discordapp.com/api/webhooks/401954827279794176/3bgGP8IhF77frDRBLr47LK54H7zoYjgPowauLx6ACw0xsDZBCmpFbiYf7S6FbCEE1LoX';
-        const payload = JSON.stringify({ content: message });
-        const params = {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'POST',
-            body: payload
-        };
-        // console.log(message);
-        fetch(discordUrl, params);
+        if (discordEnabled === true && discordUrl) {
+            const payload = JSON.stringify({ content: message });
+            const params = {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: payload
+            };
+            console.log(message);
+            // fetch(discordUrl, params);
+        }
     }
 }
 

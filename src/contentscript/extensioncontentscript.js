@@ -17,6 +17,7 @@ import Opt from "../Options";
 import PageScriptService from "../services/PageScriptService";
 import React from 'react';
 import ReactDOM from 'react-dom';
+import FetchService from "../services/FetchService";
 import ReferencesService from "./references/ReferencesService";
 import TableRollService from "./tableroll/TableRollService";
 import TinyMCEService from "./tinymce/TinyMCEService";
@@ -90,4 +91,7 @@ ConfigStorageService.getConfig().then((config: Configuration) => {
 
     // inits the refs on compendium pages
     if (config[Opt.RefButtons]) ReferencesService.init();
+
+    // discord...
+    if (config[Opt.DiscordEnabled]) FetchService.init(config);
 });

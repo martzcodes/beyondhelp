@@ -17,10 +17,16 @@ const rollDice = function (diceValue) {
  */
 const rollAllDice = function (numberOfDice, diceValue) {
     var total = 0;
+    var rolls = [];
     for (var i = 0; i < numberOfDice % 100000; i++) {
-        total += rollDice(diceValue);
+        let roll = rollDice(diceValue);
+        rolls.push(roll);
+        total += roll;
     }
-    return total;
+    return {
+        total: total,
+        rolls: rolls
+    };
 };
 
 /**
@@ -28,7 +34,7 @@ const rollAllDice = function (numberOfDice, diceValue) {
  */
 const calcTermValue = function (term: string) {
     var isVariable = term.indexOf("d") !== -1;
-    if (!isVariable) return Number(term);
+    if (!isVariable) return { total: Number(term), rolls: [] };
 
     var variableTokens = term.split("d");
     var multiplier = variableTokens[0].length === 0 ? 1 : Number(variableTokens[0]);
@@ -38,21 +44,25 @@ const calcTermValue = function (term: string) {
         return rollAllDice(multiplier, diceValue);
     }
 
-    return 0;
+    return { total: 0, rolls: [] };
 };
 
 /**
  * Calcs a dice expression value.
  */
-const calcDiceExpValue = function (diceExp: string) {
+const calcDiceExpValue = function (diceExp: string, expanded = false) {
     var spaceLessExp = diceExp.replace(/\s/g, "").toLowerCase();
     var value = 0;
     var token = "";
     var add = true;
+    let rolls = [];
+    let termValue = {};
     for (var i = 0; i < spaceLessExp.length; i++) {
         if (spaceLessExp[i] === "+" || spaceLessExp[i] === "-") {
-            if (add) value += calcTermValue(token);
-            else value -= calcTermValue(token);
+            termValue = calcTermValue(token);
+            rolls = rolls.concat.apply(rolls, termValue.rolls);
+            if (add) value += termValue.total;
+            else value -= termValue.total;
 
             add = spaceLessExp[i] === "+";
             token = "";
@@ -60,10 +70,16 @@ const calcDiceExpValue = function (diceExp: string) {
         }
         token += spaceLessExp[i];
     }
-    if (add) value += calcTermValue(token);
-    else value -= calcTermValue(token);
+    termValue = calcTermValue(token);
+    rolls = rolls.concat.apply(rolls, termValue.rolls);
+    if (add) value += termValue.total;
+    else value -= termValue.total;
 
-    return `${value} (${diceExp})`;
+    if (expanded) {
+        return `${value} (${diceExp}: ${rolls.join(', ')})`;
+    } else {
+        return `${value} (${diceExp})`;
+    }
 };
 
 class DiceExp {
@@ -76,7 +92,7 @@ class DiceExp {
     /**
      * Calcs a dice expression value.
      */
-    static calcValue(diceExp: string) {
+    static calcValue(diceExp: string, expanded = false) {
         let innerDiceExp = diceExp;
         if (typeof innerDiceExp !== "string") {
             throw new Error("Only strings are supported.");
@@ -91,7 +107,7 @@ class DiceExp {
         if (!diceExpRegex.test(innerDiceExp)) {
             throw new Error(`The expression "${diceExp}" is not a valid expression.`);
         }
-        return calcDiceExpValue(innerDiceExp);
+        return calcDiceExpValue(innerDiceExp, expanded);
     }
 }
 

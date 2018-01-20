@@ -1,3 +1,5 @@
+const discordurl = "discordurl";
+const discordenabled = "discordenabled";
 const addmonsteronlist = "addmonsteronlist";
 const addmonsteronhlist = "addmonsteronhlist";
 const addmonsterondetail = "addmonsterondetail";
@@ -12,6 +14,8 @@ const refTooltips = "refTooltips";
 const refButtons = "refButtons";
 
 const allOptions = [
+    discordurl,
+    discordenabled,
     addmonsteronlist,
     addmonsteronhlist,
     addmonsterondetail,
@@ -27,6 +31,12 @@ const allOptions = [
 ];
 
 class Options {
+    static get DiscordEnabled(): string {
+        return discordenabled;
+    }
+    static get DiscordUrl(): string {
+        return discordurl;
+    }
     static get AddMonsterOnList(): string {
         return addmonsteronlist;
     }

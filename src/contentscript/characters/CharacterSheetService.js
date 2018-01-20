@@ -33,7 +33,7 @@ class CharacterSheetService {
     }
 
     static roll(dice) {
-        return DiceExp.calcValue(dice);
+        return DiceExp.calcValue(dice, true);
     }
 
     static expandAll() {

@@ -48,13 +48,29 @@ class OptionsApp extends Component {
         };
     }
 
+    changeTextOptionHandler = (prop: string) => {
+        const baseChangeFunc = FieldService.onChangeFunc(prop, this);
+        return (e) => {
+            baseChangeFunc(e);
+            this.updateConfig();
+        };
+    }
+
     optionField = (label: string, option: string) => {
         return <CheckBoxField checkText={label} value={this.state[option]} onChange={this.changeOptionHandler(option)} />;
+    }
+
+    inputField = (label: string, option: string) => {
+        return <div><span>{label}</span><input type="text" value={this.state[option]} onChange={this.changeTextOptionHandler(option)} /></div>;
     }
 
     render() {
         return (
             <Form>
+                <OptionGroup label="Discord">
+                    {this.optionField("Enable Discord?", Opt.DiscordEnabled)}
+                    {this.inputField("Discord Webhook Url", Opt.DiscordUrl)}
+                </OptionGroup>
                 <OptionGroup label="Character Folders">
                     {this.optionField("Enable folders and sort on 'My Characters' page.", Opt.MyCharactersFolders)}
                     {this.optionField("Enable folders and sort on campaign pages.", Opt.CampaignCharactersFolders)}
