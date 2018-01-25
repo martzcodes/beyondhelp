@@ -6,6 +6,20 @@ import CharacterSheetButton from "./CharacterSheetButton";
 import DiceExp from "../../services/DiceExp";
 import FetchService from '../../services/FetchService';
 
+var onElementReady = function (sel) {
+    return new Promise((resolve) => {
+        var waitForElement = function () {
+            const $element = document.querySelector(sel);
+            if ($element) {
+                resolve($element);
+            } else {
+                window.requestAnimationFrame(waitForElement);
+            }
+        };
+        waitForElement();
+    });
+};
+
 /* global chrome */
 
 let loadCheck;
@@ -18,12 +32,46 @@ class CharacterSheetService {
 
         // it takes a few seconds for the character sheet to load (unlike most other pages)
 
-        loadCheck = setInterval(() => {
-            var collapsible = document.getElementsByClassName('collapsible-header-trigger');
-            if (collapsible.length > 0) {
-                this.actualInit();
-            }
-        }, 1000);
+        // loadCheck = setInterval(() => {
+        //     var collapsible = document.getElementsByClassName('collapsible-header-trigger');
+        //     if (collapsible.length > 0) {
+        //         this.actualInit();
+        //     }
+        // }, 1000);
+
+        onElementReady('.character-info-primary').then(() => {
+            console.log('.character-info-primary');
+        });
+        onElementReady('.reset-manager-hitdie-heading').then(() => {
+            console.log('.reset-manager-hitdie-heading');
+        });
+        onElementReady('.quick-info-initiative').then(() => {
+            console.log('.quick-info-initiative');
+        });
+        onElementReady('.character-ability-label').then(() => {
+            console.log('.character-ability-label');
+        });
+        onElementReady('.character-ability-save').then(() => {
+            console.log('.character-ability-save');
+        });
+        onElementReady('.skill-item').then(() => {
+            console.log('.skill-item');
+        });
+        onElementReady('.character-button-oversized').then(() => {
+            console.log('.character-button-oversized');
+        });
+        onElementReady('.gear-detail').then(() => {
+            console.log('.gear-detail');
+        });
+        onElementReady('.collapsible-body').then(() => {
+            console.log('.collapsible-body');
+        });
+        onElementReady('.ability-pool-spell-detail').then(() => {
+            console.log('.ability-pool-spell-detail');
+        });
+        onElementReady('.spell-caster').then(() => {
+            console.log('.spell-caster');
+        });
     }
 
     static createButton(id: string, name: string, value: string, roll: Function) {
