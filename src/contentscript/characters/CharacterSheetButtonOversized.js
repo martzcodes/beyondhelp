@@ -8,7 +8,7 @@ class CharacterSheetButton extends Component {
     render() {
         const fromParent = this.props.className || "";
         const hidden = this.props.hidden ? " hidden" : "";
-        const className = `${fromParent} character-button-outline Character-sheet-button ${hidden}`;
+        const className = `${fromParent} character-button-oversized ${hidden}`;
         return ( <
             button id = "test"
             role = "button"
